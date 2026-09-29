@@ -79,6 +79,9 @@ export function buildFlags(client: FeatureFlagsClient) {
          */
         hasCatalogTools(accountUuid: string) {
             return client.isEnabled('tools-catalog', { targetingKey: accountUuid, accountUuid }, false);
+        },
+        isAgentPlaygroundEnabled(accountUuid: string) {
+            return client.isEnabled('agent-playground', { targetingKey: accountUuid, accountUuid }, false);
         }
     };
 }
