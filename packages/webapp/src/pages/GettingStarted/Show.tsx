@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { SlackIcon } from '@/assets/SlackIcon';
-import { patchGettingStarted, useGettingStarted } from '../../hooks/useGettingStarted';
+import { useGettingStarted, usePatchGettingStarted } from '../../hooks/useGettingStarted';
 import { useToast } from '../../hooks/useToast';
 import DashboardLayout from '../../layout/DashboardLayout';
 import { useStore } from '../../store';
@@ -17,6 +17,7 @@ import { ThirdStep } from './ThirdStep';
 export const GettingStarted: React.FC = () => {
     const env = useStore((state) => state.env);
     const { data: gettingStartedResult, error, refetch, isLoading } = useGettingStarted(env);
+    const { mutateAsync: patchGettingStarted } = usePatchGettingStarted(env);
     const gettingStarted = gettingStartedResult?.data;
 
     const navigate = useNavigate();
@@ -64,10 +65,7 @@ export const GettingStarted: React.FC = () => {
                                     onConnected={async (connectionId) => {
                                         try {
                                             track('web:getting_started:connection-created', {});
-                                            const { res } = await patchGettingStarted(env, { connection_id: connectionId, step: 1 });
-                                            if (!res.ok) {
-                                                throw new Error('Failed to patch getting started');
-                                            }
+                                            await patchGettingStarted({ connection_id: connectionId, step: 1 });
                                             await refetch();
                                         } catch {
                                             toast({ title: 'Something went wrong with the getting started flow', variant: 'error' });
@@ -94,10 +92,7 @@ export const GettingStarted: React.FC = () => {
                                     onExecuted={async () => {
                                         try {
                                             track('web:getting_started:code-snippet-executed', {});
-                                            const { res } = await patchGettingStarted(env, { step: 2 });
-                                            if (!res.ok) {
-                                                throw new Error('Failed to patch getting started');
-                                            }
+                                            await patchGettingStarted({ step: 2 });
                                             await refetch();
                                         } catch {
                                             toast({ title: 'Something went wrong with the getting started flow', variant: 'error' });
